@@ -32,7 +32,7 @@ def save_embeddings(df, output_prefix):
     df.to_csv(f"./{output_prefix}_embeddings.csv", index=False)
 
 def main():
-    api_key = os.environ.get(OPENAI_API_KEY_ENV_VAR)
+    api_key = os.environ.get('OPENAI_API_KEY')
     assert api_key, f"Set your OpenAI API key as an environment variable named '{OPENAI_API_KEY_ENV_VAR}'"
 
     # Set OpenAI API key

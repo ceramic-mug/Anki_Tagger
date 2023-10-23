@@ -18,14 +18,14 @@ def set_api_key():
 
 def handle_api_error(func):
     def wrapper(*args, **kwargs):
-        t=5
+        t=2
         while True:
             try:
                 return func(*args, **kwargs)
             except (RateLimitError, APIError, ServiceUnavailableError):
-                print(f'API Error. Waiting {t}s before retrying.')
+                # print(f'API Error. Waiting {t}s before retrying.')
                 time.sleep(t)  # wait for 10 seconds before retrying
-                t+=5
+                t+=2
     return wrapper
 
 def convert_to_np_array(s):
@@ -162,12 +162,14 @@ def main(emb_path,obj_path):
                     gpt_reply = rate_card_for_obj(prompt, temperature=temp)
                     score = clean_reply(gpt_reply)
                     temp += 0.25
+                
 
                 csv_writer.writerow([guid,card,tag,cosine_sim,gpt_reply,score,obj])
-                if score > 50:
-                    poor_match_run_count=0
-                else:
-                    poor_match_run_count+=1
+                if score != "NA":
+                    if score > 50:
+                        poor_match_run_count=0
+                    else:
+                        poor_match_run_count+=1
 
             with open(progress_file, 'a', newline='', encoding='utf-8') as progress_csvfile:
                 progress_csv_writer = csv.writer(progress_csvfile)

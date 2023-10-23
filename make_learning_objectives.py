@@ -5,6 +5,7 @@ import pdfplumber
 from openai.error import RateLimitError, APIError
 from openai.embeddings_utils import get_embedding
 from pathlib import Path
+import pandas as pd
 
 MAX_TOKENS = 16384
 TOKEN_BUFFER = 1000
@@ -100,14 +101,28 @@ def main(input_path):
         print("The provided path is not a valid file or directory.")
         sys.exit(1)
 
+    if os.path.exists(output_file):
+        obj_file_exists = True
+        obj_dat = pd.read_csv(output_file)
+        done_lec = obj_dat['name'].unique()
+    else:
+        obj_file_exists = False
+
     with open(output_file, 'a', newline='', encoding='utf-8') as csvfile:
+
         csv_writer = csv.writer(csvfile)
-        csv_writer.writerow(['name', 'learning_objective','tokens','emb'])
+
+        if not obj_file_exists:
+            csv_writer.writerow(['name', 'learning_objective','tokens','emb'])
 
         for pdf_file in pdf_files:
-            objectives = define_objectives_from_pdf(pdf_file)
-            tag = Path(pdf_file).stem
-            write_to_csv(csv_writer, tag, objectives)
+            if os.path.split(pdf_file)[-1].replace('.pdf','') not in done_lec:
+                print('Working on',pdf_file)
+                objectives = define_objectives_from_pdf(pdf_file)
+                tag = Path(pdf_file).stem
+                write_to_csv(csv_writer, tag, objectives)
+            else:
+                print('Already done with ',pdf_file)
 
 if __name__ == "__main__":
     set_api_key()
