@@ -5,6 +5,7 @@ import pandas as pd
 import tiktoken
 from openai.embeddings_utils import get_embedding
 from tqdm import tqdm
+import sys
 
 # OpenAI Configuration
 OPENAI_API_KEY_ENV_VAR = 'OPENAI_API_KEY'
@@ -41,8 +42,11 @@ def main():
     # Set deck to embed.
     #This is the deck you'll apply your tags to in the end.
     #In anki, export deck notes as plain text with GUID flag checked
-    input_datapath = "./anki.txt"
-    output_prefix = "anki" # EDIT AS NEEDED
+    if len(sys.argv) == 2:
+        input_datapath = sys.argv[1]
+    else:
+        input_datapath = input('Anki notes filename > ')
+    output_prefix = input_datapath.replace('.txt','')
 
     # Load and preprocess dataset
     df = load_dataset(input_datapath)
